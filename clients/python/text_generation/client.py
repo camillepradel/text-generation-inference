@@ -74,6 +74,8 @@ class Client:
         truncate: Optional[int] = None,
         typical_p: Optional[float] = None,
         watermark: bool = False,
+        prefix_constrained: Optional[str] = None,
+        target_text: Optional[str] = None,
         decoder_input_details: bool = False,
         top_n_tokens: Optional[int] = None,
     ) -> Response:
@@ -112,6 +114,10 @@ class Client:
                 See [Typical Decoding for Natural Language Generation](https://arxiv.org/abs/2202.00666) for more information
             watermark (`bool`):
                 Watermarking with [A Watermark for Large Language Models](https://arxiv.org/abs/2301.10226)
+            prefix_constrained (`str`):
+                Constrain tokens generation
+            target_text (`str`):
+                Allows to control tokens generation constraint process
             decoder_input_details (`bool`):
                 Return the decoder input token logprobs and ids
             top_n_tokens (`int`):
@@ -136,6 +142,8 @@ class Client:
             truncate=truncate,
             typical_p=typical_p,
             watermark=watermark,
+            prefix_constrained=prefix_constrained,
+            target_text=target_text,
             decoder_input_details=decoder_input_details,
             top_n_tokens=top_n_tokens
         )
@@ -168,6 +176,8 @@ class Client:
         truncate: Optional[int] = None,
         typical_p: Optional[float] = None,
         watermark: bool = False,
+        prefix_constrained: Optional[str] = None,
+        target_text: Optional[str] = None,
         top_n_tokens: Optional[int] = None,
     ) -> Iterator[StreamResponse]:
         """
@@ -203,6 +213,10 @@ class Client:
                 See [Typical Decoding for Natural Language Generation](https://arxiv.org/abs/2202.00666) for more information
             watermark (`bool`):
                 Watermarking with [A Watermark for Large Language Models](https://arxiv.org/abs/2301.10226)
+            prefix_constrained (`str`):
+                Constrain tokens generation
+            target_text (`str`):
+                Allows to control tokens generation constraint process
             top_n_tokens (`int`):
                 Return the `n` most likely tokens at each step
 
@@ -226,6 +240,8 @@ class Client:
             truncate=truncate,
             typical_p=typical_p,
             watermark=watermark,
+            prefix_constrained=prefix_constrained,
+            target_text=target_text,
             top_n_tokens=top_n_tokens,
         )
         request = Request(inputs=prompt, stream=True, parameters=parameters)
@@ -324,6 +340,8 @@ class AsyncClient:
         truncate: Optional[int] = None,
         typical_p: Optional[float] = None,
         watermark: bool = False,
+        prefix_constrained: Optional[str] = None,
+        target_text: Optional[str] = None,
         decoder_input_details: bool = False,
         top_n_tokens: Optional[int] = None,
     ) -> Response:
@@ -362,6 +380,10 @@ class AsyncClient:
                 See [Typical Decoding for Natural Language Generation](https://arxiv.org/abs/2202.00666) for more information
             watermark (`bool`):
                 Watermarking with [A Watermark for Large Language Models](https://arxiv.org/abs/2301.10226)
+            prefix_constrained (`str`):
+                Constrain tokens generation
+            target_text (`str`):
+                Allows to control tokens generation constraint process
             decoder_input_details (`bool`):
                 Return the decoder input token logprobs and ids
             top_n_tokens (`int`):
@@ -387,6 +409,8 @@ class AsyncClient:
             truncate=truncate,
             typical_p=typical_p,
             watermark=watermark,
+            prefix_constrained=prefix_constrained,
+            target_text=target_text,
             top_n_tokens=top_n_tokens,
         )
         request = Request(inputs=prompt, stream=False, parameters=parameters)
@@ -416,6 +440,8 @@ class AsyncClient:
         truncate: Optional[int] = None,
         typical_p: Optional[float] = None,
         watermark: bool = False,
+        prefix_constrained: Optional[str] = None,
+        target_text: Optional[str] = None,
         top_n_tokens: Optional[int] = None,
     ) -> AsyncIterator[StreamResponse]:
         """
@@ -451,6 +477,10 @@ class AsyncClient:
                 See [Typical Decoding for Natural Language Generation](https://arxiv.org/abs/2202.00666) for more information
             watermark (`bool`):
                 Watermarking with [A Watermark for Large Language Models](https://arxiv.org/abs/2301.10226)
+            prefix_constrained (`str`):
+                Constrain tokens generation
+            target_text (`str`):
+                Allows to control tokens generation constraint process
             top_n_tokens (`int`):
                 Return the `n` most likely tokens at each step
 
@@ -474,6 +504,8 @@ class AsyncClient:
             truncate=truncate,
             typical_p=typical_p,
             watermark=watermark,
+            prefix_constrained=prefix_constrained,
+            target_text=target_text,
             top_n_tokens=top_n_tokens,
         )
         request = Request(inputs=prompt, stream=True, parameters=parameters)

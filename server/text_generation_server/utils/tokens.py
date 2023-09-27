@@ -13,8 +13,9 @@ from text_generation_server.utils.logits_process import (
     HeterogeneousTypicalLogitsWarper,
     static_warper,
 )
+from text_generation_server.utils.prefix_allowed_tokens_fns import RestrictToListOfTextExtracts
 from text_generation_server.utils.watermark import WatermarkLogitsProcessor
-from transformers import PreTrainedTokenizerBase, RepetitionPenaltyLogitsProcessor
+from transformers import PreTrainedTokenizerBase, RepetitionPenaltyLogitsProcessor, PrefixConstrainedLogitsProcessor
 
 
 class NextTokenChooser:
@@ -27,6 +28,9 @@ class NextTokenChooser:
         top_p=None,
         typical_p=None,
         do_sample=False,
+        prefix_constrained=None,
+        target_text=None, # needed if prefix_constrained == "entity_list"
+        tokenizer=None, # needed if prefix_constrained == "entity_list"
         seed=0,
         device="cpu",
     ):
@@ -36,6 +40,11 @@ class NextTokenChooser:
         self.repetition_processor = (
             RepetitionPenaltyLogitsProcessor(penalty=repetition_penalty)
             if repetition_penalty
+            else None
+        )
+        self.prefix_constrained_logits_processor = (
+            PrefixConstrainedLogitsProcessor(prefix_allowed_tokens_fn=RestrictToListOfTextExtracts(target_text, tokenizer), num_beams=1)
+            if prefix_constrained == "entity_list"
             else None
         )
 
@@ -60,6 +69,8 @@ class NextTokenChooser:
             scores = self.watermark_processor(input_ids, scores)
         if self.repetition_processor is not None:
             scores = self.repetition_processor(input_ids, scores)
+        if self.prefix_constrained_logits_processor is not None:
+            scores = self.prefix_constrained_logits_processor(input_ids, scores)
 
         if self.static_warper is None:
             next_logprob = torch.log_softmax(scores, -1)
@@ -75,6 +86,7 @@ class NextTokenChooser:
         cls,
         pb: generate_pb2.NextTokenChooserParameters,
         device: torch.device,
+        tokenizer=None, # needed if prefix_constrained == "entity_list"
     ) -> "NextTokenChooser":
         return NextTokenChooser(
             watermark=pb.watermark,
@@ -84,6 +96,9 @@ class NextTokenChooser:
             top_p=pb.top_p,
             typical_p=pb.typical_p,
             do_sample=pb.do_sample,
+            prefix_constrained=pb.prefix_constrained,
+            target_text=pb.target_text,
+            tokenizer=tokenizer,
             seed=pb.seed,
             device=device,
         )
@@ -159,7 +174,10 @@ class HeterogeneousNextTokenChooser:
         top_p: List[float],
         typical_p: List[float],
         do_sample: List[bool],
+        prefix_constrained: List[str],
         seeds: List[int],
+        target_text=None, # needed if prefix_constrained == "entity_list"
+        tokenizer=None, # needed if prefix_constrained == "entity_list"
     ):
         warpers = []
 
@@ -180,6 +198,18 @@ class HeterogeneousNextTokenChooser:
                 repetition_penalty, dtype, device
             )
             if any([x != 1.0 for x in repetition_penalty])
+            else None
+        )
+        
+        self.prefix_constrained_logits_processor = (
+            HeterogeneousProcessorWrapper(
+                {
+                    i: PrefixConstrainedLogitsProcessor(prefix_allowed_tokens_fn=RestrictToListOfTextExtracts(target_text[i], tokenizer), num_beams=1)
+                    for i, prefix_constrained_value in enumerate(prefix_constrained)
+                    if prefix_constrained_value == "entity_list"
+                }
+            )
+            if any(prefix_constrained)
             else None
         )
 
@@ -220,6 +250,8 @@ class HeterogeneousNextTokenChooser:
             scores = self.watermark_processor(input_ids, scores)
         if self.repetition_processor is not None:
             scores = self.repetition_processor(input_ids, scores)
+        if self.prefix_constrained_logits_processor is not None:
+            scores = self.prefix_constrained_logits_processor(input_ids, scores)
 
         for warper in self.warpers:
             scores = warper(input_ids, scores)
@@ -236,6 +268,9 @@ class HeterogeneousNextTokenChooser:
 
         if self.repetition_processor is not None:
             self.repetition_processor = self.repetition_processor.filter(indices)
+
+        if self.prefix_constrained_logits_processor is not None:
+            self.prefix_constrained_logits_processor = self.prefix_constrained_logits_processor.filter(indices)
 
         filtered_warpers = []
         for warper in self.warpers:
@@ -260,6 +295,7 @@ class HeterogeneousNextTokenChooser:
         pb: List[generate_pb2.NextTokenChooserParameters],
         dtype: torch.dtype,
         device: torch.device,
+        tokenizer=None, # needed if prefix_constrained == "entity_list"
     ) -> "HeterogeneousNextTokenChooser":
         return HeterogeneousNextTokenChooser(
             watermark=[pb_.watermark for pb_ in pb],
@@ -269,6 +305,9 @@ class HeterogeneousNextTokenChooser:
             top_p=[pb_.top_p for pb_ in pb],
             typical_p=[pb_.typical_p for pb_ in pb],
             do_sample=[pb_.do_sample for pb_ in pb],
+            prefix_constrained=[pb_.prefix_constrained for pb_ in pb],
+            target_text=[pb_.target_text for pb_ in pb],
+            tokenizer=tokenizer,
             seeds=[pb_.seed for pb_ in pb],
             device=device,
             dtype=dtype,

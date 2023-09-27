@@ -140,6 +140,10 @@ class Parameters:
     watermark: bool
     # Get decoder input token logprobs and ids
     decoder_input_details: bool
+    # Constrain token generation
+    prefix_constrained: str
+    # Allows to control tokens generation constraint process
+    target_text: str
 
 # Decoder input tokens
 class InputToken:

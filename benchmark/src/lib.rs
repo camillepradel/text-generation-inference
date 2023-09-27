@@ -43,6 +43,8 @@ pub async fn run(
         seed: 0,
         repetition_penalty: repetition_penalty.unwrap_or(1.0),
         watermark,
+        prefix_constrained: "".to_owned(),
+        target_text: "".to_owned(),
     };
 
     // Initialize terminal properties

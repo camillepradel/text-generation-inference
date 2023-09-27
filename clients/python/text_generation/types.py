@@ -35,6 +35,10 @@ class Parameters(BaseModel):
     best_of: Optional[int] = None
     # Watermarking with [A Watermark for Large Language Models](https://arxiv.org/abs/2301.10226)
     watermark: bool = False
+    # Constrain tokens generation
+    prefix_constrained: Optional[str] = None
+    # Allows to control tokens generation constraint process
+    target_text: Optional[str] = None
     # Get generation details
     details: bool = False
     # Get decoder input token logprobs and ids
@@ -60,6 +64,13 @@ class Parameters(BaseModel):
                 raise ValidationError("you must use sampling when `best_of` is > 1")
 
         return field_value
+
+    @validator("prefix_constrained")
+    def valid_prefix_constrained(cls, v):
+        valid_values = ["entity_list"]
+        if v is not None and v not in valid_values:
+            raise ValidationError("`prefix_constrained` must be None or in " + valid_values)
+        return v
 
     @validator("repetition_penalty")
     def valid_repetition_penalty(cls, v):

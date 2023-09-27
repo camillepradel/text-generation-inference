@@ -12,6 +12,8 @@ def default_pb_parameters():
         top_p=1.0,
         typical_p=1.0,
         do_sample=False,
+        prefix_constrained="",
+        target_text="",
     )
 
 

@@ -144,6 +144,8 @@ impl Validation {
             truncate,
             seed,
             watermark,
+            prefix_constrained,
+            target_text,
             decoder_input_details,
             top_n_tokens,
             ..
@@ -260,6 +262,8 @@ impl Validation {
             do_sample,
             seed,
             watermark,
+            prefix_constrained,
+            target_text,
         };
         let stopping_parameters = StoppingCriteriaParameters {
             max_new_tokens,

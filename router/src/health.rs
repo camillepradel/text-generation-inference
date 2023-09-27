@@ -44,6 +44,8 @@ impl Health {
                     seed: 0,
                     repetition_penalty: 1.0,
                     watermark: false,
+                    prefix_constrained: "".to_owned(),
+                    target_text: "".to_owned(),
                 }),
                 stopping_parameters: Some(StoppingCriteriaParameters {
                     max_new_tokens: 1,

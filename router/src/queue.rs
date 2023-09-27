@@ -323,6 +323,8 @@ mod tests {
                     seed: 0,
                     repetition_penalty: 0.0,
                     watermark: false,
+                    prefix_constrained: "",
+                    target_text: "",
                 },
                 stopping_parameters: StoppingCriteriaParameters {
                     ignore_eos_token: false,

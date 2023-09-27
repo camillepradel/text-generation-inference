@@ -49,7 +49,7 @@ struct Args {
     port: u16,
     #[clap(default_value = "/tmp/text-generation-server-0", long, env)]
     master_shard_uds_path: String,
-    #[clap(default_value = "bigscience/bloom", long, env)]
+    #[clap(default_value = "meta-llama/Llama-2-7b-chat-hf", long, env)]
     tokenizer_name: String,
     #[clap(long, env)]
     revision: Option<String>,

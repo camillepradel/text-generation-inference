@@ -106,6 +106,12 @@ pub(crate) struct GenerateParameters {
     #[serde(default)]
     #[schema(default = "false", example = true)]
     pub do_sample: bool,
+    #[serde(default)]
+    #[schema(default = "", example = "entity_list")]
+    pub prefix_constrained: String,
+    #[serde(default)]
+    #[schema(default = "", example = "ChapsVision acquires Geotrend and strengthens its position as European leader in business intelligence solutions.")]
+    pub target_text: String,
     #[serde(default = "default_max_new_tokens")]
     #[schema(exclusive_minimum = 0, exclusive_maximum = 512, default = "20")]
     pub max_new_tokens: u32,
@@ -158,6 +164,8 @@ fn default_parameters() -> GenerateParameters {
         stop: Vec::new(),
         truncate: None,
         watermark: false,
+        prefix_constrained: "".to_owned(),
+        target_text: "".to_owned(),
         details: false,
         decoder_input_details: false,
         seed: None,
